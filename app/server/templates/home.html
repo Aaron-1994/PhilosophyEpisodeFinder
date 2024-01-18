@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
+    <title>Episode Finder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <style>
+        
+
+        @keyframes rainbow {
+            0% { background-color: red; }
+            20% { background-color: orange; }
+            40% { background-color: green; }
+            60% { background-color: blue; }
+            80% { background-color: indigo; }
+            100% { background-color: red; }
+        }
+
+        .spinner {
+            border: 8px solid #f3f3f3; /* Light grey */
+            border-top: 8px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+
+        #searchEpisodesBtn {
+            animation: rainbow 10s infinite; /* The button will cycle through the rainbow colors every 10 seconds */
+        }
+
+        /* Typing animation */
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: black; }
+        }
+
+        
+
+
+        #contentWrapper {
+            /* display: none; */
+            display: block;
+        }
+        /* General styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Style for the header */
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+
+            /* New properties to add */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            /* height: 100vh; */
+        }
+
+        /* Style for the main content container */
+        main {
+            padding: 20px;
+            display: flex; /* Use flexbox for layout */
+            /* height: 80vh; */
+            display: flex;
+        }
+
+        .episode-number {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .episode-text {
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .episode-link a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        .episode-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Style for the two sections within the main content */
+        .section {
+            flex: 1; /* Equal-width sections by default */
+            box-sizing: border-box;
+            padding: 20px; /* Increased padding for sections */
+            background-color: #f4f4f4; /* Section background color */
+            border: 1px solid #ccc; /* Section border */
+            border-radius: 4px; /* Rounded corners for sections */
+        }
+
+        /* Style for section titles */
+        .section h3 {
+            color: #333; /* Section title text color */
+            font-size: 20px; /* Section title font size */
+        }
+
+        /* Style for the button */
+        .button-container {
+            text-align: center;
+            margin-top: 10px; /* Add vertical space between the button and text box */
+        }
+
+        /* Style for the vertical separator */
+        .vertical-separator {
+            border-left: 3px solid #ccc; /* Thicker vertical line style */
+            margin: 0 10px; /* Adjust the spacing as needed */
+        }
+
+        /* Style to make the text box fit nicely in section1 */
+        #textBox1 {
+            width: calc(100% - 20px); /* Take all horizontal space minus 20px for margins */
+            margin: 0 10px; /* Equal margins on each side */
+            padding: 10px; /* Add padding to the text box */
+            border: 1px solid #ccc; /* Add a border to the text box */
+            border-radius: 4px; /* Add rounded corners */
+            font-size: 16px; /* Adjust the font size */
+        }
+
+        /* Style for the button */
+        #searchEpisodesBtn {
+            background-color: #007BFF; /* Button background color */
+            color: #fff; /* Button text color */
+            padding: 10px 20px; /* Add padding to the button */
+            border: none; /* Remove button border */
+            border-radius: 4px; /* Add rounded corners */
+            font-size: 16px; /* Adjust the font size */
+            cursor: pointer; /* Change cursor on hover */
+        }
+
+        /* Hover effect for the button */
+        #searchEpisodesBtn:hover {
+            background-color: #0056b3; /* Darker background color on hover */
+        }
+
+        /* Adjust the width of section1 to make it narrower */
+        #section1 {
+            flex: 0.3; /* Adjust the value to make it narrower */
+            display: grid;
+            grid-template-rows: 1fr 1fr;  /* This splits the container into two equal rows */
+            height: auto; /* Ensures height adjusts to content. */
+        }
+        
+        #topSectionContainer {
+            border-radius: 20px; /* This gives the curvy corners */
+            background-color: #f9f9f9; /* A light background color for the container */
+            padding: 20px; /* Spacing around the content inside the container */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* A subtle shadow to give it some depth */
+            margin-bottom: 20px; /* Spacing between this container and whatever is below it */
+            /* display: inline-block; */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            /* height: 100%;  */
+        }
+
+
+        /* Style for section2 (Episodes) */
+        #section2 {
+            flex: 0.7; /* Adjust the value to make it wider */
+            text-align: center; /* Center-align content */
+            height: auto; /* Ensures height adjusts to content. */
+        }
+        
+        #bottomSectionContainer {
+            border-radius: 20px; /* Curvy corners */
+            background-color: #f9f9f9; /* Light background color for the container */
+            padding: 20px; /* Spacing around the content inside the container */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+            margin-top: 20px; /* Spacing between this container and whatever is above it */
+        }
+
+        
+        #summaryContainer {
+            display: flex;
+            justify-content: center; /* horizontally center */
+            align-items: center;     /* vertically center */
+            min-height: 100px;       /* or a suitable minimum height when spinner is shown */
+            position: relative;      /* to position children elements relative to this */
+        }
+
+
+        /* Style for the Episodes title */
+        #section2 h3 {
+            font-size: 24px; /* Larger font size for the title */
+            margin: 0; /* Remove default margin */
+        }
+
+        /* Style for the ITEMBOX division */
+        .item-box-division {
+            padding: 20px; /* Padding for the division */
+            background-color: #fff; /* Division background color */
+            border: 1px solid #ccc; /* Division border */
+            border-radius: 4px; /* Rounded corners for the division */
+        }
+
+        /* Style for ITEMBOX elements */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Grid with flexible columns */
+            gap: 20px; /* Increased gap between grid items */
+        }
+
+        /* Style for the individual grid items (ITEMBOX) */
+        .grid-item {
+            background-color: #f4f4f4; /* ITEMBOX background color */
+            border: 1px solid #ccc; /* ITEMBOX border */
+            border-radius: 4px; /* Rounded corners for ITEMBOX */
+            padding: 20px; /* Increased padding for ITEMBOX */
+            text-align: center; /* Center-align text */
+            margin: 10px; /* Add margin to all sides */
+            word-wrap: break-word; /* Wrap long text */
+            transition: transform 0.3s ease; /* smooth transition for the scale effect */
+            position: relative;
+        }
+
+        /* Style for the text within ITEMBOX */
+        .grid-item p {
+            margin: 0; /* Remove default margin for paragraphs */
+            font-size: 14px; /* Adjust the font size */
+        }
+
+        .grid-item:hover {
+            transform: scale(1.02);  /* 2% larger on hover */
+        }
+
+        .example-bubble {
+            background-color: #e0e0e0; /* Light grey color */
+            padding: 10px 20px; /* Padding around the text */
+            border-radius: 20px; /* Rounded corners to give it a bubble effect */
+            display: inline-block; /* To make sure it respects the padding and border-radius */
+            margin: 5px 10px; /* Some margin to give spacing between the bubbles */
+            cursor: pointer; /* Changes the cursor to a hand when hovered */
+            transition: all 0.3s ease; /* Smooth transition for all changes */
+        }
+
+
+        .example-bubble:hover {
+            background-color: #d1d1d1; /* A slightly darker grey for hover */
+            box-shadow: 0px 0px 15px rgba(0,0,0,0.1); /* A subtle shadow to give it depth when hovered */
+            transform: scale(1.05); /* Slightly enlarge the bubble when hovered */
+        }
+
+        .spinner {
+            border: 8px solid #f3f3f3; /* Light grey */
+            border-top: 8px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: auto; /* helps in further centering */
+        }
+        
+        .grid-item button {
+            background-color: #3498db; /* default blue color */
+            border: none;
+            color: white; /* text color */
+            padding: 8px 16px; /* top-bottom and left-right padding */
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px; /* space around the button */
+            transition-duration: 0.4s; /* smooth transition effect */
+            cursor: pointer; /* change cursor to pointer/hand when over button */
+            border-radius: 8px; /* rounded corners */
+        }
+
+        .grid-item button:hover {
+            background-color: #2c3e50; /* color when you hover over it */
+            color: white;
+        }
+
+        header {
+            position: relative;
+        }
+
+        #aboutMe {
+            position: relative;
+            bottom: 1%;
+            left: 1%;  /* To match the 95% width set earlier */
+            right: 1%;
+            
+        }
+
+        #aboutMe {
+            background-color: #4d4d4d;  /* Lighter dark grey */
+            padding: 20px;
+            margin: 0 auto;  /* Remove any default margins */
+            border-radius: 10px;   /* Gives the curvy corners */
+            width: 98%;  /* Full viewport width */
+            box-sizing: border-box;  /* To ensure padding doesn't expand the element's size */
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px; /* optional, for spacing between columns */
+        }
+
+        #aboutMe h3 {
+            color: #ffffff; /* White color for the heading */
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        #aboutMe p {
+            color: #b0b0b0; /* A lighter grey for better readability against the dark background */
+            font-size: 0.8em;
+            line-height: 1.5;
+        }
+
+        #aboutMe a {
+            color: #89a7c4; /* This is a more muted, pastel blue. */
+            text-decoration: underline; /* Adding an underline can also help recognize it as a link without relying too much on its color. */
+        }
+
+        #aboutMe a:hover {
+            color: #6b8ca3; /* Slightly darker shade of blue for hover effect. */
+        }
+
+        /* #aboutMe a {
+            color: #0077b5;  
+            text-decoration: none;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        } */
+
+
+        #aboutMe a:hover {
+            text-decoration: underline;
+        }
+
+        #aboutMe .fa-linkedin-square {
+            margin-right: 10px;
+            font-size: 24px;  /* Adjust the size of the LinkedIn icon */
+        }
+
+        
+    </style>
+</head>
+<div id="contentWrapper">
+    <!-- Your entire webpage content goes here (header, main, etc.) -->
+
+    <body>
+
+        <header id="mainHeader">
+            <section id="aboutMe">
+                <div id="podcastInfo">
+                    <h3>What is <a href="http://philosophizethis.org">"Philosophize This!"</a>?</h3>
+                    <p>
+                        "Philosophize This!" is a popular podcast dedicated to making philosophy accessible for everyone. Hosted by Stephen West, it dives deep into philosophical ideas, thinkers, and concepts in an engaging and approachable manner. This podcast offers insightful episodes that span across different eras, thinkers, and schools of thought.
+                    </p>
+                </div>
+        
+                <div id="headerInfo">
+                    <h2>Philosophy Episode Finder</h2>
+                    
+                    <p>
+                        Ask your question, we tell you where to find the answer. Philosophy Episode Finder is Question Answering Search Engine app. Using Retrieval Augmented Generation techniques, we tell our users where to find the answer to their philosophical questions. Support for more podcasts is in progress.
+                    </p>
+                </div>
+        
+                <div id="aboutMeInfo">
+                    <h3>About Me</h3>
+                    <p>
+                        This is Aaron Shayesteh, an engineer specializing in crafting software that influences the tech world. In the past, I've delved into mathematics within the quiet aisles of libraries. Currently, I'm dedicated to creating digital solutions, and you're engaging with one of my projects right now. Go ahead, explore and ask your existential questions, immersing yourself in the world of philosophy.
+                    </p>
+                    <a href="https://www.linkedin.com/in/aaron-shayesteh/" target="_blank">Connect with me on LinkedIn</a>
+                    <i class="fa fa-linkedin-square"></i>
+                    
+                </div>
+            </section>
+        </header>
+        
+        
+        
+        <main>
+            <div class="section" id="section1">
+                <div id="topSectionContainer">
+                    <h3 style="text-align: center"> What would you like to learn about? </h3>
+                    <input type="text" id="textBox1" placeholder="I want to learn about free will">
+                    <div class="button-container">
+                        <button id="searchEpisodesBtn" onclick="searchEpisodes()">Try Me!</button>
+                    </div>
+                    <div id="bottomRow">
+                        <div class="example-bubble" onclick="populateSearch('Who is Albert Camus?')">Who is Albert Camus?</div>
+                        <div class="example-bubble" onclick="populateSearch('Can you help me cook fish?')"> Can you help me cook fish?</div>
+                        <div class="example-bubble" onclick="populateSearch('What is freedom?')">What is freedom?</div>
+                        <div class="example-bubble" onclick="populateSearch('I want to know about the philosophy of the Greek time')">I want to know about the philosophy of the Greek time</div>
+                        <div class="example-bubble" onclick="populateSearch('How is an individual constituted through society')">How is an individual constituted through society</div>
+                        <div class="example-bubble" onclick="populateSearch('What is Frankfurt school?')">What is Frankfurt school?</div>
+                    </div>
+                </div>
+                
+                <div id="bottomSectionContainer">
+                    <h3> Your Personalized Summary </h3>
+                    <div id="summaryLoadingSpinner" style="display: none;">
+                        <div class="spinner"></div>
+                    </div>
+                    <div id="summaryContainer"></div>
+                </div>
+                
+                
+            </div>
+            <div class="vertical-separator"></div> <!-- Vertical separator -->
+            <div class="section" id="section2">
+                <h3 style="padding-bottom: 35px;">Suggested Episodes</h3> <!-- New title: Episodes -->
+                <div class="item-box-division" id="itemBoxDivision">
+                    <!-- Grid layout for ITEMBOX elements -->
+                    <div class="grid-layout" id="gridLayout">
+                        
+                        
+                    </div>
+                </div>
+            </div>
+        </main>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.js"></script>
+        <script>
+            document.getElementById('textBox1').addEventListener('keydown', function(event) {
+                if (event.keyCode === 13) {  // 13 is the key code for Enter
+                    event.preventDefault();  // Prevent any default behavior (e.g., form submission)
+                    searchEpisodes();
+                }
+            });
+
+            function updateGrid(episodes) {
+                // console.log("in update grid");
+                // Check if the conversion to integer was successful and X is a positive number
+
+                // Generate and add X ITEMBOXs to the grid layout
+                var gridLayout = document.getElementById("gridLayout");
+                gridLayout.innerHTML = ""; // Clear existing grid items
+                if (episodes.length === 0) {
+                    // Display message if no episodes are found
+                    
+                    
+                    gridLayout.innerHTML = '<div class="bubble-message">Unfortunately, We could not find any relevant episodes! Life is full of questions, I encourage you to ask another!</div>';
+                    return; // Exit the function since there are no episodes to display
+                }
+                // console.log(episodes);
+                for (var i = 0; i < episodes.length; i++) {
+                    console.log(i);
+                    console.log(episodes[i]);
+                    episodeData = {
+                        text: episodes[i].episode_text,
+                        number: episodes[i].episode_number,
+                        title: episodes[i].episode_title,
+                        link: episodes[i].episode_link,
+                        podcast_title: episodes[i].podcast_title
+                    };
+                    // console.log(episodeData);
+                    createGridItem(gridLayout, episodeData);
+                }
+
+            }
+            
+
+            function displaySummary(episodeData) {
+                
+                // Get the summary container
+                var summaryContainer = document.getElementById("summaryContainer");
+                var summaryText = document.createElement('p');
+
+                if (episodeData == ""){
+                    summaryText.innerText = "Unfortunately, we could not make a summary for this episode. Please try another episode."
+                }else{
+                    ep_summary = episodeData.episode_summary;
+                    ep_num = episodeData.episode_number;
+                    ep_title = episodeData.episode_title;
+                    podcast_title = episodeData.podcast_title
+                    summaryText.innerText = "This is a summary of the episode " + ep_title + " from "+ podcast_title + "\n" + ep_summary;
+                }
+                
+                
+
+                // Remove the spinner first
+                while (summaryContainer.firstChild) {
+                    summaryContainer.removeChild(summaryContainer.firstChild);
+                }
+
+                
+                
+                // Add the summary text
+                summaryContainer.appendChild(summaryText);
+                // Update the content of the container with the received text
+                // summaryContainer.textContent = text;
+
+                // Apply some styling to make the summary stand out
+                summaryContainer.style.padding = "10px";
+                summaryContainer.style.marginTop = "20px";
+                summaryContainer.style.border = "1px solid #ccc";
+                summaryContainer.style.borderRadius = "5px";
+                summaryContainer.style.backgroundColor = "#f9f9f9";
+            }
+
+            function clearElementContent(elementId) {
+                var element = document.getElementById(elementId);
+                while (element.firstChild) {
+                    element.removeChild(element.firstChild);
+                }
+            }
+
+
+            function searchEpisodes() {
+                var gridLayout = document.getElementById('gridLayout');
+                gridLayout.innerHTML = '';
+
+                // // Add loading spinner to gridLayout
+                var loader = document.createElement('div');
+                loader.style.display = 'block'; // Show the loader
+                loader.style.display = 'flex';
+                loader.style.justifyContent = 'center';
+                loader.style.alignItems = 'center';
+                loader.style.height = '100%';
+                loader.style.width = '100%';
+                
+                var spinner = document.createElement('div');
+                spinner.className = 'spinner';
+                loader.appendChild(spinner);
+
+
+                gridLayout.appendChild(loader);
+                var btn = document.getElementById('searchEpisodesBtn');
+
+                
+                btn.style.animationPlayState = 'paused';  // This will pause the animation
+                btn.style.animation = 'none';
+                btn.style.backgroundColor = 'blue';  
+                btn.innerText = 'Search Episodes';  
+                
+
+                var textBoxValue = document.getElementById("textBox1").value;
+                var SEARCHVALUE = encodeURIComponent(textBoxValue);
+                
+                var episodes = 0;
+                // Create an object to send as JSON in the POST request
+                var requestData = {
+                        user_input: SEARCHVALUE,
+                    };
+
+                    // Send a POST request to your Flask server
+                    fetch("/search", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(requestData),
+                    })
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw new Error("Network response was not ok");
+                            }
+                            return response.json();
+                        })
+                        .then(function (data) {
+                            // Handle the response data here
+
+                            
+                            // console.log("printing the episodes in log data set stuff!!");
+                            // console.log(data);
+                            // loader.style.display = 'none';
+                            gridLayout.removeChild(loader)
+
+                            updateGrid(data.results);
+
+                        })
+                        .catch(function (error) {
+                            console.error("Error:", error);
+                            // loader.style.display = 'none';
+                            gridLayout.removeChild(loader)
+                        });
+        
+                }
+            
+            function summarizeSpecificEpisode(episodeNumber, podcast_title) {
+                // Use the episodeNumber to make an AJAX call to your backend 
+                // or handle however you want to summarize for that specific episode.
+                // This is just a starting point.
+                clearElementContent('summaryContainer');
+
+                document.getElementById("summaryLoadingSpinner").style.display = "block";
+
+                var textBoxValue = document.getElementById("textBox1").value;
+                var SEARCHVALUE = encodeURIComponent(textBoxValue);
+                
+                var requestData = {
+                        epi_num: episodeNumber,
+                        question: SEARCHVALUE,
+                        podcast_title: podcast_title,
+                    };
+                
+                    fetch("/make_summary", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(requestData),
+                    })
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw new Error("Network response was not ok");
+                            }
+                            displaySummary("");
+                            return response.json();
+                        })
+                        .then(function (data) {
+                            // Handle the response data here
+
+                            console.log("summary");
+                            console.log(data);
+                            episodeData = data.results;
+                            document.getElementById("summaryLoadingSpinner").style.display = "none";
+                            displaySummary(episodeData);
+
+                        })
+                        .catch(function (error) {
+                            console.error("Error:", error);
+                            document.getElementById("summaryLoadingSpinner").style.display = "none";
+                        });
+            }
+
+
+            // Function to create and add a new grid item (ITEMBOX) to the grid layout
+            function createGridItem(gridLayout, episodeData) {
+                // Create a new grid item (div element)
+                var gridItem = document.createElement("div");
+                gridItem.className = "grid-item";
+                console.log("printing in create grid item");
+                console.log(episodeData);
+                // Set the content of the ITEMBOX
+                var podcastTitle = "<div class='podcast-title'>" + episodeData.podcast_title + "</div>";
+                // var episodeTitle = "<div class='episode-number'>Episode: " + episodeData.number +": " + episodeData.title + "</div>"; // +1 because itemNumber starts from 0
+                var episodeTitle = "<div class='episode-number'>Episode: " + episodeData.title + "</div>"; // +1 because itemNumber starts from 0
+                var episodeText = "<div class='episode-text'>" + episodeData.text + "</div>";
+                var episodeLink = "<div class='episode-link'><a href='" + episodeData.link + "' target='_blank'>View Episode</a></div>";
+                var summarizeButton = "<button onclick='summarizeSpecificEpisode(" + episodeData.number + ", \"" + episodeData.podcast_title + "\")'>Why This Episode?</button>";
+                console.log(summarizeButton);
+                gridItem.innerHTML = podcastTitle + episodeTitle + episodeText + episodeLink + summarizeButton;
+                
+                // Append the grid item to the grid layout
+                gridLayout.appendChild(gridItem);
+            }
+
+            // Function to calculate the size of the ITEMBOX based on its content
+            function calculateItemBoxSize(gridItem) {
+                var maxItemWidth = 400; // Maximum width for ITEMBOX (really wide for 2 per row)
+                var maxItemHeight = 200; // Maximum height for ITEMBOX
+
+                // Get the item's content elements
+                var itemContent = gridItem.querySelectorAll("p");
+
+                // Check if content elements exist
+                if (itemContent.length >= 2) {
+                    // Measure the size of the content elements
+                    var contentWidth = Math.max(itemContent[0].offsetWidth, itemContent[1].offsetWidth);
+                    var contentHeight = itemContent[0].offsetHeight + itemContent[1].offsetHeight;
+
+                    // Calculate the new size while respecting the maximum width and height
+                    var newItemWidth = Math.min(maxItemWidth, contentWidth);
+                    var newItemHeight = Math.min(maxItemHeight, contentHeight);
+
+                    // Apply the calculated size to the ITEMBOX
+                    gridItem.style.width = newItemWidth + "px";
+                    gridItem.style.height = newItemHeight + "px";
+                }
+            }
+
+            function populateSearch(text) {
+                document.getElementById("textBox1").value = text;
+                searchEpisodes();
+            }
+
+
+            // Adjust the grid layout to display two ITEMBOXes per row
+            var gridLayout = document.getElementById("gridLayout");
+            gridLayout.style.gridTemplateColumns = "repeat(2, 1fr)";
+
+            
+
+
+        </script>
+    </body>
+</div>
+</html>
